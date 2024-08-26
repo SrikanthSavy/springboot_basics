@@ -2,8 +2,12 @@ package com.shoda.rest.webservices.restful_web_servies.exception;
 
 import java.time.LocalDateTime;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -51,6 +55,20 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 			"message": "id  :22",
 			"details": "uri=/users/22"
 		 */
+	}
+	
+	
+	//Override "handleMethodArgumentNotValid" when user Provides wrong / missing fields
+	@Override
+	@Nullable
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+		//Our Custom errordetails class format
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getFieldError().getDefaultMessage(), request.getDescription(false) );
+				
+		//Handling it as NOT_FOUND i.e 404 status code
+		return new ResponseEntity(errorDetails,HttpStatus.BAD_REQUEST);
 	}
 
 }

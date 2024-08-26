@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class UserResource {
 	// GET /users -> to do we need DAO service (autowire) (constructor/setter /field
@@ -46,7 +48,7 @@ public class UserResource {
 
 	// Create a User POST /users
 	@PostMapping(path = "/users")
-	public ResponseEntity<User> createUser(@RequestBody User user) {
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
 		User savedUser = daoService.save(user);
 
 		// User CurrentRequest = localhost8080/users
