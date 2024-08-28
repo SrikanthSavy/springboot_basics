@@ -2,8 +2,11 @@ package com.shoda.rest.webservices.restful_web_servies.user;
 
 import java.net.URI;
 import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*; // will import all the methods of this class as static
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,16 +37,30 @@ public class UserResource {
 		return daoService.findAll();
 	}
 
+	
+	//To add Hateoas - i.e link to AllUser method() 
+	//3 steps  .   	1) Step : Wrap User  == > EntityModel<user>
+	//				2) Step: Import All use static import  WebMvcLinkBuilder and use linkTo() & MethodOf()
+	//				3) Use WebMvcLinkBuilder to link it to a Method
+	
 	// "/users/{id}" get Specific User
 	@GetMapping(path = "/users/{userId}")
-	public User getUsersById(@PathVariable int userId) {
+	public EntityModel<User> getUsersById(@PathVariable int userId) {
 		User user = daoService.findOne(userId);
 		//Exception handlin: When User is null we "throw" our own exception 
 		if(user==null)
 			throw new UserNotFoundException("id  :"+userId);
 		
+		//Hateoas Concept
+		EntityModel<User> entityModel = EntityModel.of(user); //static method of(object)
 		
-		return user;
+		//Linking method to response  // Adding "getUsers() and linkin it
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).getUsers()); 
+		
+		//add this link to EnityModel
+		entityModel.add(link.withRel("all-users"));
+ 		
+		return entityModel;
 	}
 
 	// Create a User POST /users
